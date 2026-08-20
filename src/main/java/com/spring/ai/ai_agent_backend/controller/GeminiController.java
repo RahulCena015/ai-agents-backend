@@ -1,37 +1,31 @@
 package com.spring.ai.ai_agent_backend.controller;
 
-import org.springframework.ai.chat.client.ChatClient;
+import com.spring.ai.ai_agent_backend.tools.GeminiService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/gemini")
+@RequiredArgsConstructor
 public class GeminiController {
 
-    private final ChatClient chatClient;
-
-    // Spring AI auto-configures ChatClient.Builder
-    public GeminiController(ChatClient.Builder chatClientBuilder) {
-        this.chatClient = chatClientBuilder.build();
-    }
+    private final GeminiService geminiService;
 
     /**
      * GET endpoint for quick browser testing
-     * Example: http://localhost:8080/api/gemini/generate?message=Hello
+     * Example: http://localhost:8081/api/gemini/generate?message=What is the status of order 1042?
      */
     @GetMapping("/generate")
     public Map<String, String> generate(
-            @RequestParam(defaultValue = "Explain Spring Boot in 2 sentences") String message) {
+            @RequestParam(defaultValue = "What is the status of order 1042?") String message) {
 
-        String response = chatClient.prompt()
-                .user(message)
-                .call()
-                .content();
+        String response = geminiService.generateText(message);
 
         return Map.of(
                 "prompt", message,
-                "response", response);
+                "response", response != null ? response : "");
     }
 
     /**
@@ -39,13 +33,10 @@ public class GeminiController {
      */
     @PostMapping("/chat")
     public Map<String, String> chat(@RequestBody Map<String, String> request) {
-        String prompt = request.getOrDefault("message", "Hello!");
+        String prompt = request.getOrDefault("message", "What is the status of order 1042?");
 
-        String response = chatClient.prompt()
-                .user(prompt)
-                .call()
-                .content();
+        String response = geminiService.generateText(prompt);
 
-        return Map.of("response", response);
+        return Map.of("response", response != null ? response : "");
     }
 }
