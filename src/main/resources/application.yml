@@ -1,8 +1,23 @@
 server:
   port: 8081
+
 spring:
   application:
     name: ai-agent-backend
+
+  # PostgreSQL datasource for PgVector
+  datasource:
+    url: jdbc:postgresql://localhost:5433/ai_agent_db
+    username: postgres
+    password: postgres
+
+  # File upload limits
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+  # Spring AI configuration
   ai:
     google:
       genai:
@@ -11,3 +26,17 @@ spring:
           options:
             model: gemini-3.6-flash
             temperature: 0.7
+        embedding:
+          api-key: ${spring.ai.google.genai.api-key}
+          text:
+            options:
+              model: gemini-embedding-001
+              dimensions: 768
+
+    # PgVector store configuration
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 768
+        initialize-schema: true
